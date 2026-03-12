@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop | Gleam Cart Luxury</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><span>G</span>leam <span>C</span>art</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shop.html" class="active">Shop</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="cart.html">Cart</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero" style="height: 40vh; background-image: url('https://images.unsplash.com/photo-1512411952210-994f7936a00a?q=80&w=2000');">
+        <div class="hero-content">
+            <h1>The Boutique</h1>
+            <p>15 Handpicked Masterpieces</p>
+        </div>
+    </header>
+
+    <section class="container">
+        <div class="product-grid">
+            
+            <div class="card">
+                <div class="img-container">
+                    <img src="aurelian hoops.jpeg" alt="Jewelry">
+                </div>
+                <div class="card-info">
+                    <h3>Aurelian Hoops</h3>
+                    <p class="price">₹8,500</p>
+                    <details>
+                        <summary>View Details</summary>
+                        <div class="desc-box">
+                            <p>Hand-polished 22k gold plated hoops with a hammered finish for a vintage aesthetic.</p>
+                           <button class="cart-btn" onclick="addToCart('Aurelian Hoops', 8500, 'aurelian hoops.jpeg')">Add to Cart</button>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="img-container">
+                    <img src="luna gold pendant.jpeg" alt="Jewelry">
+                </div>
+                <div class="card-info">
+                    <h3>Luna Pendant</h3>
+                    <p class="price">₹15,200</p>
+                    <details>
+                        <summary>View Details</summary>
+                        <div class="desc-box">
+                            <p>A crescent moon pendant encrusted with micro-diamonds on a thin gold chain.</p>
+                         <button class="cart-btn" onclick="addToCart('Aurelian Hoops', 8500, 'https://images.unsplash.com/photo-1635767798638-3e25273a8236?w=600')">Add to Cart</button>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="img-container">
+                    <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600" alt="Jewelry">
+                </div>
+                <div class="card-info">
+                    <h3>Vintage Bangle</h3>
+                    <p class="price">₹12,800</p>
+                    <details>
+                        <summary>View Details</summary>
+                        <div class="desc-box">
+                            <p>An antique-inspired thick cuff with intricate floral engravings.</p>
+                            <button class="cart-btn">Add to Cart</button>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="img-container">
+                    <img src="emerald cut ring.jpeg" alt="Jewelry">
+                </div>
+                <div class="card-info">
+                    <h3>Emerald Cut Ring</h3>
+                    <p class="price">₹45,000</p>
+                    <details>
+                        <summary>View Details</summary>
+                        <div class="desc-box">
+                            <p>A statement ring featuring a lab-grown emerald set in solid 18k gold.</p>
+                            <button class="cart-btn">Add to Cart</button>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="img-container">
+                    <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600" alt="Jewelry">
+                </div>
+                <div class="card-info">
+                    <h3>Heavy Link Chain</h3>
+                    <p class="price">₹28,600</p>
+                    <details>
+                        <summary>View Details</summary>
+                        <div class="desc-box">
+                            <p>A bold, chunky chain link necklace for a modern powerful look.</p>
+                            <button class="cart-btn">Add to Cart</button>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="img-container">
+                    <img src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600" alt="Jewelry">
+                </div>
+                <div class="card-info">
+                    <h3>Pearl Drop Gold</h3>
+                    <p class="price">₹9,900</p>
+                    <details>
+                        <summary>View Details</summary>
+                        <div class="desc-box">
+                            <p>Freshwater pearls hanging from a delicate gold stud.</p>
+                            <button class="cart-btn">Add to Cart</button>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Gleam Cart India | The Boutique Collection</p>
+    </footer>
+<script>
+function addToCart(name, price, img) {
+    let cart = JSON.parse(localStorage.getItem('gleamCart')) || [];
+    cart.push({ name, price, img });
+    localStorage.setItem('gleamCart', JSON.stringify(cart));
+    alert(name + " added to your cart!");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cart | Gleam Cart</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><span>G</span>leam <span>C</span>art</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="cart.html" class="active">Cart</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2 class="section-header">Your Luxury Selection</h2>
+        <div class="gold-line"></div>
+
+        <div id="cart-content">
+            </div>
+
+        <div class="cart-summary" id="cart-summary" style="display:none;">
+            <h3>Total: <span id="total-price">₹0</span></h3>
+            <button class="btn-alt" onclick="checkout()">Proceed to Checkout</button>
+            <button class="btn-clear" onclick="clearCart()">Clear Cart</button>
+        </div>
+    </div>
+
+    <script>
+        function displayCart() {
+            const cart = JSON.parse(localStorage.getItem('gleamCart')) || [];
+            const container = document.getElementById('cart-content');
+            const summary = document.getElementById('cart-summary');
+            let total = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = "<p style='text-align:center;'>Your cart is currently empty. Gleam awaits!</p>";
+                summary.style.display = "none";
+                return;
+            }
+
+            summary.style.display = "block";
+            container.innerHTML = ""; // Clear loading text
+
+            cart.forEach((item, index) => {
+                total += item.price;
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="cart-item-info">
+                            <h4>${item.name}</h4>
+                            <p>Premium Gold Edition</p>
+                        </div>
+                        <div class="cart-item-price">₹${item.price.toLocaleString('en-IN')}</div>
+                        <button class="remove-btn" onclick="removeItem(${index})">✕</button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('total-price').innerText = "₹" + total.toLocaleString('en-IN');
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('gleamCart'));
+            cart.splice(index, 1);
+            localStorage.setItem('gleamCart', JSON.stringify(cart));
+            displayCart();
+        }
+
+        function clearCart() {
+            localStorage.removeItem('gleamCart');
+            displayCart();
+        }
+
+        function checkout() {
+            alert("Thank you for choosing Gleam Cart! This is a demo frontend.");
+        }
+
+        // Run this when the page loads
+        displayCart();
+    </script>
+
+</body>
+</html>
