@@ -55,6 +55,9 @@ nav {
     justify-content: center;
     text-align: center;
     color: white;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .hero h1 { font-family: 'Playfair Display', serif; font-size: 4.5rem; color: var(--antique-gold); }
