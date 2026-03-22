@@ -45,7 +45,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     const msgBox = document.getElementById('message');
 
     try {
-        const response = await fetch('http://localhost:5000/api/auth/register', {
+        const response = await fetch('gleam-cart-backend-production.up.railway.app/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password })
