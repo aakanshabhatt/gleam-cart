@@ -1,85 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Member Access | Gleam Cart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gleam Cart</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="auth-page">
+    <div class="auth-container">
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Login to access your premium collection</p>
 
-    <nav>
-        <div class="logo"><span>G</span>leam <span>C</span>art</div>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop</a></li>
-            <li><a href="login.html" class="active">Login</a></li>
-            <li><a href="cart.html">Cart</a></li>
-            <li><a href="about.html">About</a></li>
-        </ul>
-    </nav>
+        <!-- Success/Error message box -->
+        <div id="message" style="display:none; padding:10px; border-radius:6px; margin-bottom:15px; text-align:center;"></div>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="auth-btn">Login</button>
+        </form>
 
-    <div class="login-container">
-        <div class="auth-box">
-            <h2>Create Account</h2>
-            <p>Join the inner circle for exclusive offers.</p>
-            <div class="gold-line"></div>
-            
-            <input type="text" id="reg-user" placeholder="Full Name">
-            <input type="email" id="reg-email" placeholder="Email Address">
-            <input type="password" id="reg-pass" placeholder="Create Password">
-            
-            <button class="btn-alt" onclick="register()">Create Account</button>
-        </div>
-
-        <div class="auth-box">
-            <h2>Login</h2>
-            <p>Welcome back to elegance.</p>
-            <div class="gold-line"></div>
-            
-            <input type="email" id="log-email" placeholder="Email Address">
-            <input type="password" id="log-pass" placeholder="Password">
-            
-            <button class="btn-alt" onclick="login()">Sign In</button>
-            <p id="message" style="margin-top: 15px; font-weight: bold; color: var(--mocha);"></p>
-        </div>
+        <p class="toggle-text">
+            Don't have an account? <a href="signup.html">Sign Up here</a>
+        </p>
     </div>
-    <script>
-        // Function to Save Account (Register)
-        function register() {
-            const email = document.getElementById('reg-email').value;
-            const pass = document.getElementById('reg-pass').value;
 
-            if(email && pass) {
-                // This saves the data in the browser's memory
-                localStorage.setItem('userEmail', email);
-                localStorage.setItem('userPass', pass);
-                alert("Account Created Successfully! Now you can Login.");
-            } else {
-                alert("Please fill all fields.");
-            }
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    const msgBox = document.getElementById('message');
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Save token and user info
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            // Show success
+            msgBox.style.display = 'block';
+            msgBox.style.backgroundColor = '#d4edda';
+            msgBox.style.color = '#155724';
+            msgBox.innerText = 'Welcome back, ' + data.user.name + '! Redirecting...';
+
+            // Redirect to shop after 1.5 seconds
+            setTimeout(function() {
+                window.location.href = 'shop.html';
+            }, 1500);
+
+        } else {
+            msgBox.style.display = 'block';
+            msgBox.style.backgroundColor = '#f8d7da';
+            msgBox.style.color = '#721c24';
+            msgBox.innerText = data.message || 'Invalid email or password!';
         }
 
-        // Function to Check Account (Login)
-        function login() {
-            const email = document.getElementById('log-email').value;
-            const pass = document.getElementById('log-pass').value;
-            
-            // This pulls the saved data from the browser
-            const savedEmail = localStorage.getItem('userEmail');
-            const savedPass = localStorage.getItem('userPass');
-
-            if(email === savedEmail && pass === savedPass) {
-                document.getElementById('message').innerText = "Welcome back, " + email + "!";
-                document.getElementById('message').style.color = "green";
-                // Redirect to shop after 2 seconds
-                setTimeout(() => { window.location.href = "shop.html"; }, 2000);
-            } else {
-                document.getElementById('message').innerText = "Invalid Email or Password.";
-                document.getElementById('message').style.color = "red";
-            }
-        }
-    </script>
+    } catch (err) {
+        msgBox.style.display = 'block';
+        msgBox.style.backgroundColor = '#f8d7da';
+        msgBox.style.color = '#721c24';
+        msgBox.innerText = 'Cannot connect to server. Make sure server is running!';
+    }
+});
+</script>
 
 </body>
 </html>

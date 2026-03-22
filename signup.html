@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Gleam Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <h2>Create Account</h2>
+        <p class="subtitle">Join the Gleam Cart luxury experience</p>
+
+        <!-- Success/Error message box -->
+        <div id="message" style="display:none; padding:10px; border-radius:6px; margin-bottom:15px; text-align:center;"></div>
+        
+        <form id="signupForm">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="name" placeholder="Enter your name" required>
+            </div>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            <div class="input-group">
+                <label>Create Password</label>
+                <input type="password" id="password" placeholder="Min 8 characters" required>
+            </div>
+            <button type="submit" class="auth-btn">Create Account</button>
+        </form>
+
+        <p class="toggle-text">
+            Already have an account? <a href="login.html">Login here</a>
+        </p>
+    </div>
+
+<script>
+document.getElementById('signupForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    const msgBox = document.getElementById('message');
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Save token and user info
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            // Show success
+            msgBox.style.display = 'block';
+            msgBox.style.backgroundColor = '#d4edda';
+            msgBox.style.color = '#155724';
+            msgBox.innerText = 'Account created! Redirecting...';
+
+            // Redirect to shop after 1.5 seconds
+            setTimeout(function() {
+                window.location.href = 'shop.html';
+            }, 1500);
+
+        } else {
+            // Show error from server
+            msgBox.style.display = 'block';
+            msgBox.style.backgroundColor = '#f8d7da';
+            msgBox.style.color = '#721c24';
+            msgBox.innerText = data.message || 'Something went wrong!';
+        }
+
+    } catch (err) {
+        msgBox.style.display = 'block';
+        msgBox.style.backgroundColor = '#f8d7da';
+        msgBox.style.color = '#721c24';
+        msgBox.innerText = 'Cannot connect to server. Make sure server is running!';
+    }
+});
+</script>
+
+</body>
+</html>

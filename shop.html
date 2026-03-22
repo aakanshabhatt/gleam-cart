@@ -290,11 +290,26 @@
         <p>&copy; 2026 Gleam Cart India | The Boutique Collection</p>
     </footer>
 <script>
+function showToast(message) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+    toast.innerText = message;
+    toast.classList.add('show');
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
 function addToCart(name, price, img) {
     let cart = JSON.parse(localStorage.getItem('gleamCart')) || [];
     cart.push({ name, price, img });
     localStorage.setItem('gleamCart', JSON.stringify(cart));
-    alert(name + " added to your cart!");
+    showToast('🛍️ ' + name + ' added to cart!');
 }
 </script>
 </body>

@@ -23,8 +23,10 @@
         <h2 class="section-header">Your Luxury Selection</h2>
         <div class="gold-line"></div>
 
-        <div id="cart-content">
-            </div>
+        <!-- Message box -->
+        <div id="message" style="display:none; padding:10px; border-radius:6px; margin-bottom:15px; text-align:center;"></div>
+
+        <div id="cart-content"></div>
 
         <div class="cart-summary" id="cart-summary" style="display:none;">
             <h3>Total: <span id="total-price">₹0</span></h3>
@@ -47,7 +49,7 @@
             }
 
             summary.style.display = "block";
-            container.innerHTML = ""; // Clear loading text
+            container.innerHTML = "";
 
             cart.forEach((item, index) => {
                 total += item.price;
@@ -79,11 +81,80 @@
             displayCart();
         }
 
-        function checkout() {
-            alert("Thank you for choosing Gleam Cart! This is a demo frontend.");
+        async function checkout() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            if (!token) {
+                const msgBox = document.getElementById('message');
+                msgBox.style.display = 'block';
+                msgBox.style.backgroundColor = '#f8d7da';
+                msgBox.style.color = '#721c24';
+                msgBox.innerText = 'Please login first to place your order!';
+                setTimeout(function() {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
+            const cart = JSON.parse(localStorage.getItem('gleamCart')) || [];
+            if (cart.length === 0) return;
+
+            // Prepare order items
+            const items = cart.map(function(item) {
+                return {
+                    name: item.name,
+                    price: item.price,
+                    quantity: 1
+                };
+            });
+
+            const totalAmount = cart.reduce(function(sum, item) {
+                return sum + item.price;
+            }, 0);
+
+            try {
+                const response = await fetch('http://localhost:5000/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ items, totalAmount })
+                });
+
+                const data = await response.json();
+
+                const msgBox = document.getElementById('message');
+                msgBox.style.display = 'block';
+
+                if (response.ok) {
+                    msgBox.style.backgroundColor = '#d4edda';
+                    msgBox.style.color = '#155724';
+                    msgBox.innerText = 'Order placed successfully! Thank you for shopping at Gleam Cart! 🛍️';
+
+                    // Clear cart after successful order
+                    localStorage.removeItem('gleamCart');
+                    setTimeout(function() {
+                        displayCart();
+                    }, 2000);
+
+                } else {
+                    msgBox.style.backgroundColor = '#f8d7da';
+                    msgBox.style.color = '#721c24';
+                    msgBox.innerText = data.message || 'Could not place order. Try again!';
+                }
+
+            } catch (err) {
+                const msgBox = document.getElementById('message');
+                msgBox.style.display = 'block';
+                msgBox.style.backgroundColor = '#f8d7da';
+                msgBox.style.color = '#721c24';
+                msgBox.innerText = 'Cannot connect to server. Make sure server is running!';
+            }
         }
 
-        // Run this when the page loads
         displayCart();
     </script>
 
