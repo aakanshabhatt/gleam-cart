@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders | Gleam Cart</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo"><span>G</span>leam <span>C</span>art</div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="about.html">About</a></li>
+        <li>
+            <a href="cart.html" class="nav-icon">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-badge" id="cartCount">0</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-icon" id="userNavBtn">
+                <i class="fas fa-user-circle"></i>
+                <span id="userNavName"></span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="container">
+    <h2 class="section-header" style="font-family:'Playfair Display',serif; font-size:2rem; text-align:center; margin-bottom:10px;">My Orders</h2>
+    <div class="gold-line"></div>
+
+    <div id="orders-content" style="margin-top:30px;">
+        <p style="text-align:center;">Loading your orders...</p>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 Gleam Cart India. Premium Jewelry Store.</p>
+</footer>
+<script>
+async function loadOrders() {
+    const token = localStorage.getItem('token');
+    const container = document.getElementById('orders-content');
+
+    if (!token) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:40px;">
+                <i class="fas fa-lock" style="font-size:3rem; color:#b8860b;"></i>
+                <p style="margin-top:15px;">Please login to view your orders!</p>
+                <a href="login.html" style="color:#b8860b; font-weight:bold;">Login here</a>
+            </div>`;
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:5000/api/orders/myorders', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        const orders = await response.json();
+
+        if (orders.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px;">
+                    <i class="fas fa-box-open" style="font-size:3rem; color:#b8860b;"></i>
+                    <p style="margin-top:15px;">No orders yet! Start shopping.</p>
+                    <a href="shop.html" style="color:#b8860b; font-weight:bold;">Shop Now</a>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = orders.map(function(order) {
+            const date = new Date(order.createdAt).toLocaleDateString('en-IN', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
+
+            const itemsList = order.items.map(function(item) {
+                return `
+                    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0e6d3;">
+                        <span>${item.name} x${item.quantity}</span>
+                        <span style="color:#b8860b; font-weight:bold;">₹${item.price.toLocaleString('en-IN')}</span>
+                    </div>`;
+            }).join('');
+
+            return `
+                <div style="background:white; border:1px solid #b8860b; border-radius:8px; padding:25px; margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <div>
+                            <p style="font-size:12px; color:#888;">Order Date</p>
+                            <p style="font-weight:bold; color:#3E2723;">${date}</p>
+                        </div>
+                        <div style="text-align:right;">
+                            <p style="font-size:12px; color:#888;">Status</p>
+                            <span style="background:${order.status === 'cancelled' ? '#f8d7da' : '#d4edda'}; 
+                                         color:${order.status === 'cancelled' ? '#721c24' : '#155724'}; 
+                                         padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold;">
+                                ${order.status.toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                    ${itemsList}
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                        <strong style="font-size:1.1rem; color:#b8860b;">Total: ₹${order.totalAmount.toLocaleString('en-IN')}</strong>
+                        ${order.status !== 'cancelled' ? 
+                            `<button onclick="cancelOrder('${order._id}')" 
+                                style="background:transparent; border:1px solid #d9534f; color:#d9534f; 
+                                       padding:8px 20px; border-radius:6px; cursor:pointer; font-size:0.85rem;"
+                                onmouseover="this.style.background='#f8d7da'"
+                                onmouseout="this.style.background='transparent'">
+                                Cancel Order
+                            </button>` 
+                            : '<span style="color:#888; font-size:0.85rem;">Order Cancelled</span>'
+                        }
+                    </div>
+                </div>`;
+        }).join('');
+
+    } catch (err) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:40px;">
+                <i class="fas fa-exclamation-triangle" style="font-size:3rem; color:#d9534f;"></i>
+                <p style="margin-top:15px;">Cannot connect to server. Make sure server is running!</p>
+            </div>`;
+    }
+}
+
+async function cancelOrder(orderId) {
+    const confirmed = await showConfirmDialog('Are you sure you want to cancel this order?');
+if (!confirmed) return;
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch('http://localhost:5000/api/orders/' + orderId + '/cancel', {
+            method: 'PATCH',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await response.json();
+        if (response.ok) {
+            showCancelToast('Order cancelled successfully!');
+            loadOrders();
+        } else {
+            showCancelToast(data.message || 'Could not cancel order!');
+        }
+    } catch (err) {
+        showCancelToast('Cannot connect to server!');
+    }
+}
+
+function showCancelToast(message) {
+    let toast = document.getElementById('cancelToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'cancelToast';
+        toast.style.cssText = `
+            position:fixed; top:30px; left:50%; transform:translateX(-50%);
+            background:#f5ead9; color:#3E2723; padding:14px 28px;
+            border-radius:8px; border:1px solid #D4AF37;
+            font-family:'Montserrat',sans-serif; font-weight:600;
+            font-size:14px; z-index:9999;
+            box-shadow:0 4px 20px rgba(0,0,0,0.1); transition:opacity 0.3s ease;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.innerText = message;
+    toast.style.opacity = '1';
+    setTimeout(function() { toast.style.opacity = '0'; }, 3000);
+}
+function showConfirmDialog(message) {
+    return new Promise(function(resolve) {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); z-index:99999;
+            display:flex; align-items:center; justify-content:center;
+        `;
+
+        // Create dialog box
+        overlay.innerHTML = `
+            <div style="
+                background:#fdf6e3; border:1px solid #D4AF37;
+                border-radius:12px; padding:35px; max-width:380px;
+                width:90%; text-align:center;
+                box-shadow:0 10px 40px rgba(0,0,0,0.2);
+                font-family:'Montserrat',sans-serif;
+            ">
+                <i class="fas fa-exclamation-circle" style="font-size:2.5rem; color:#B8860B; margin-bottom:15px;"></i>
+                <p style="color:#3E2723; font-size:1rem; margin-bottom:25px; line-height:1.6;">${message}</p>
+                <div style="display:flex; gap:15px; justify-content:center;">
+                    <button id="confirmYes" style="
+                        background:#d9534f; color:white; border:none;
+                        padding:10px 30px; border-radius:6px; cursor:pointer;
+                        font-family:'Montserrat',sans-serif; font-weight:bold;
+                        font-size:0.9rem; transition:0.3s;
+                    ">Yes, Cancel</button>
+                    <button id="confirmNo" style="
+                        background:transparent; color:#3E2723;
+                        border:1px solid #B8860B; padding:10px 30px;
+                        border-radius:6px; cursor:pointer;
+                        font-family:'Montserrat',sans-serif; font-weight:bold;
+                        font-size:0.9rem; transition:0.3s;
+                    ">Keep Order</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        document.getElementById('confirmYes').onclick = function() {
+            document.body.removeChild(overlay);
+            resolve(true);
+        };
+
+        document.getElementById('confirmNo').onclick = function() {
+            document.body.removeChild(overlay);
+            resolve(false);
+        };
+    });
+}
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('gleamCart')) || [];
+    const badge = document.getElementById('cartCount');
+    if (badge) {
+        badge.innerText = cart.length;
+        badge.style.display = cart.length > 0 ? 'flex' : 'none';
+    }
+}
+
+function updateUserNav() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const userBtn = document.getElementById('userNavBtn');
+    const userName = document.getElementById('userNavName');
+    if (user && userBtn) {
+        userName.innerText = user.name.split(' ')[0];
+        userBtn.onclick = function(e) {
+            e.preventDefault();
+            toggleDropdown();
+        }
+        if (!document.getElementById('userDropdown')) {
+            const dropdown = document.createElement('div');
+            dropdown.className = 'user-dropdown';
+            dropdown.id = 'userDropdown';
+            dropdown.innerHTML = `
+                <h4>👋 ${user.name}</h4>
+                <a href="orders.html"><i class="fas fa-box"></i> My Orders</a>
+                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            `;
+            document.body.appendChild(dropdown);
+        }
+    } else if (userBtn) {
+        userBtn.href = 'login.html';
+    }
+}
+
+function toggleDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.classList.toggle('show');
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('userDropdown');
+    const userBtn = document.getElementById('userNavBtn');
+    if (dropdown && userBtn && !dropdown.contains(e.target) && !userBtn.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+updateCartCount();
+updateUserNav();
+loadOrders();
+</script>
+</body>
+</html>

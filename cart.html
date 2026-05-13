@@ -5,18 +5,31 @@
     <title>Your Cart | Gleam Cart</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
     <nav>
         <div class="logo"><span>G</span>leam <span>C</span>art</div>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop</a></li>
-            <li><a href="login.html">Login</a></li>
-            <li><a href="cart.html" class="active">Cart</a></li>
-            <li><a href="about.html">About</a></li>
-        </ul>
+       <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">About</a></li>
+    <li>
+        <a href="cart.html" class="nav-icon active">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Cart</span>
+            <span class="cart-badge" id="cartCount">0</span>
+        </a>
+    </li>
+    <li>
+        <a href="#" class="nav-icon" id="userNavBtn">
+            <i class="fas fa-user-circle"></i>
+            <span id="userNavName"></span>
+        </a>
+    </li>
+</ul>
+
     </nav>
 
     <div class="container">
@@ -115,7 +128,7 @@
             }, 0);
 
             try {
-                const response = await fetch('https://gleam-cart-backend.onrender.com/api/orders', {
+                const response = await fetch('http://localhost:5000/api/orders', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -157,6 +170,69 @@
 
         displayCart();
     </script>
+<script>
+// Cart count update
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('gleamCart')) || [];
+    const badge = document.getElementById('cartCount');
+    if (badge) {
+        badge.innerText = cart.length;
+        badge.style.display = cart.length > 0 ? 'flex' : 'none';
+    }
+}
 
+// User nav update
+function updateUserNav() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const userBtn = document.getElementById('userNavBtn');
+    const userName = document.getElementById('userNavName');
+
+    if (user && userBtn) {
+        userName.innerText = user.name.split(' ')[0]; // First name only
+        userBtn.onclick = function(e) {
+            e.preventDefault();
+            toggleDropdown();
+        }
+
+        // Add dropdown if not exists
+        if (!document.getElementById('userDropdown')) {
+            const dropdown = document.createElement('div');
+            dropdown.className = 'user-dropdown';
+            dropdown.id = 'userDropdown';
+            dropdown.innerHTML = `
+                <h4>👋 ${user.name}</h4>
+                <a href="orders.html"><i class="fas fa-box"></i> My Orders</a>
+                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            `;
+            document.body.appendChild(dropdown);
+        }
+    } else if (userBtn) {
+        userBtn.href = 'login.html';
+    }
+}
+
+function toggleDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.classList.toggle('show');
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('userDropdown');
+    const userBtn = document.getElementById('userNavBtn');
+    if (dropdown && !dropdown.contains(e.target) && !userBtn.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+updateCartCount();
+updateUserNav();
+</script>
 </body>
 </html>

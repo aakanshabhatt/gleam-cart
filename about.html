@@ -5,18 +5,30 @@
     <title>Our Story | Gleam Cart</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
     <nav>
         <div class="logo"><span>G</span>leam <span>C</span>art</div>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop</a></li>
-            <li><a href="login.html">Login</a></li>
-            <li><a href="cart.html">Cart</a></li>
-            <li><a href="about.html" class="active">About</a></li>
-        </ul>
+   <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html" class="active">About</a></li>
+    <li>
+        <a href="cart.html" class="nav-icon">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Cart</span>
+            <span class="cart-badge" id="cartCount">0</span>
+        </a>
+    </li>
+    <li>
+        <a href="#" class="nav-icon" id="userNavBtn">
+            <i class="fas fa-user-circle"></i>
+            <span id="userNavName"></span>
+        </a>
+    </li>
+</ul>
     </nav>
 
     <header class="hero" style="height: 45vh; background-image: url('images/about_hero.jpeg');">
@@ -68,12 +80,184 @@
             </ul>
         </div>
     </section>
+<!-- Reviews Section -->
+<section class="container" style="padding-bottom: 80px;">
+    <h2 style="font-family:'Playfair Display',serif; font-size:2rem; text-align:center; margin-bottom:10px;">What Our Customers Say</h2>
+    <div class="gold-line"></div>
 
+    <div class="review-carousel" style="margin-top:40px;">
+        <div class="review-box">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">"Absolutely stunning pieces! The Luna Gold Pendant I ordered arrived beautifully packaged and looked even more gorgeous in person. Gleam Cart has earned a loyal customer!"</p>
+            <div class="review-author">
+                <div class="review-avatar">P</div>
+                <div>
+                    <p class="review-name">priya_sharma</p>
+                    <p class="review-date">March 2026</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-nav">
+            <button class="review-btn" id="prevBtn" onclick="changeReview(-1)">&#8592;</button>
+            <span id="reviewCounter">1 / 6</span>
+            <button class="review-btn" id="nextBtn" onclick="changeReview(1)">&#8594;</button>
+        </div>
+    </div>
+</section>
     <footer>
         <div class="footer-bottom">
             <p>&copy; 2026 Gleam Cart India | Crafted with Care.</p>
         </div>
     </footer>
+<script>
+// Cart count update
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('gleamCart')) || [];
+    const badge = document.getElementById('cartCount');
+    if (badge) {
+        badge.innerText = cart.length;
+        badge.style.display = cart.length > 0 ? 'flex' : 'none';
+    }
+}
 
+// User nav update
+function updateUserNav() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const userBtn = document.getElementById('userNavBtn');
+    const userName = document.getElementById('userNavName');
+
+    if (user && userBtn) {
+        userName.innerText = user.name.split(' ')[0]; // First name only
+        userBtn.onclick = function(e) {
+            e.preventDefault();
+            toggleDropdown();
+        }
+
+        // Add dropdown if not exists
+        if (!document.getElementById('userDropdown')) {
+            const dropdown = document.createElement('div');
+            dropdown.className = 'user-dropdown';
+            dropdown.id = 'userDropdown';
+            dropdown.innerHTML = `
+                <h4>👋 ${user.name}</h4>
+                <a href="orders.html"><i class="fas fa-box"></i> My Orders</a>
+                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            `;
+            document.body.appendChild(dropdown);
+        }
+    } else if (userBtn) {
+        userBtn.href = 'login.html';
+    }
+}
+
+function toggleDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.classList.toggle('show');
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('userDropdown');
+    const userBtn = document.getElementById('userNavBtn');
+    if (dropdown && !dropdown.contains(e.target) && !userBtn.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+updateCartCount();
+updateUserNav();
+</script>
+<script>
+const reviews = [
+    {
+        stars: '★★★★★',
+        text: '"Absolutely stunning pieces! The Luna Gold Pendant I ordered arrived beautifully packaged and looked even more gorgeous in person. Gleam Cart has earned a loyal customer!"',
+        name: 'priya_sharma',
+        avatar: 'P',
+        date: 'March 2026'
+    },
+    {
+        stars: '★★★★★',
+        text: '"The Pearl Drop Gold Earrings are beyond beautiful. The quality is exceptional and the packaging felt so luxurious. Will definitely be ordering again for my sister\'s wedding!"',
+        name: 'neha.kapoor',
+        avatar: 'N',
+        date: 'February 2026'
+    },
+    {
+        stars: '★★★★☆',
+        text: '"Ordered the Butterfly Bracelet as a gift for my best friend and she absolutely loved it! Delivery was quick and the product quality exceeded my expectations. Highly recommend!"',
+        name: 'riya_dixit',
+        avatar: 'R',
+        date: 'March 2026'
+    },
+    {
+        stars: '★★★★★',
+        text: '"The Emerald Cut Ring is everything I dreamed of! It looks so elegant and premium. Gleam Cart truly understands luxury. My go-to jewelry store from now on!"',
+        name: 'ananya.v',
+        avatar: 'A',
+        date: 'January 2026'
+    },
+    {
+        stars: '★★★★☆',
+        text: '"Purchased the Trinity Layered Necklace and received so many compliments! The gold finish is stunning and it feels very high quality. Great value for the price!"',
+        name: 'simran_k',
+        avatar: 'S',
+        date: 'February 2026'
+    },
+    {
+        stars: '★★★★★',
+        text: '"Gleam Cart is my new favorite! The Floral Cuff Bracelet with Ring set is absolutely gorgeous. Fast delivery, beautiful packaging and even better quality in person!"',
+        name: 'deepika.m',
+        avatar: 'D',
+        date: 'March 2026'
+    }
+];
+
+let current = 0;
+
+function changeReview(direction) {
+    current += direction;
+    if (current < 0) current = reviews.length - 1;
+    if (current >= reviews.length) current = 0;
+    updateReview();
+}
+
+function updateReview() {
+    const r = reviews[current];
+    const box = document.querySelector('.review-box');
+
+    // Fade out
+    box.style.opacity = '0';
+    box.style.transform = 'translateY(10px)';
+
+    setTimeout(function() {
+        box.innerHTML = `
+            <div class="review-stars">${r.stars}</div>
+            <p class="review-text">${r.text}</p>
+            <div class="review-author">
+                <div class="review-avatar">${r.avatar}</div>
+                <div>
+                    <p class="review-name">${r.name}</p>
+                    <p class="review-date">${r.date}</p>
+                </div>
+            </div>
+        `;
+        // Fade in
+        box.style.opacity = '1';
+        box.style.transform = 'translateY(0)';
+        document.getElementById('reviewCounter').innerText = (current + 1) + ' / ' + reviews.length;
+    }, 300);
+}
+
+// Add transition to box
+document.querySelector('.review-box').style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+</script>
 </body>
 </html>
